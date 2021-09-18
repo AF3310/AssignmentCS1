@@ -1,0 +1,42 @@
+#include <iostream>
+
+using namespace std;
+
+class Animal {
+    
+    Animal(){
+        rowposition, colposition = 0;
+    }
+    Animal(int row, in col){
+        rowposition=row;
+        colposition=col;
+    }
+    bool move(char c){
+        switch(topupper(c)){
+            case 'U':
+            /*add if statement here to chekck if beyond board size */
+                
+                
+        }
+    }
+    private:
+        int rowposition, colposition;
+        
+}
+
+class Board{
+    Board(int c1r, int c1c, int c2r, int c2c){
+        for(
+        
+    }
+    private:
+        int boardSize; 
+        char ** arr= new char*[boardSize];
+        
+}
+int main()
+{
+    cout<<"Hello World";
+
+    return 0;
+}
