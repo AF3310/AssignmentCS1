@@ -1,7 +1,5 @@
 #include <iostream>
-
 using namespace std;
-
 class Animal {
     
     Animal(){
@@ -26,8 +24,11 @@ class Animal {
 
 class Board{
     Board(int c1r, int c1c, int c2r, int c2c){
-        for(
         
+        for(int i=0;i < boardSize;i++){
+            *(arr+i)= new char[boardSize]
+            
+        }
     }
     private:
         int boardSize; 
