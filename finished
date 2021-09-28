@@ -1,0 +1,283 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "Animal.h""
+using namespace std;
+class Animal {
+public:
+    Animal() {
+        rowposition = 0;
+        colposition = 0;
+        bSize = 0;
+        avoidrow = 0;
+        avoidcol = 0;
+        avoidrow2 = 0;
+        avoidcol2 = 0;
+        statuscounter = 0;
+        status = "neutral";
+        exitr = 0;
+        exitc = 0;
+    }
+    Animal(string n, int row, int col, int rowofcat1, int colofcat1, int rowofcat2, int colofcat2,int erow,int ecol,int b) {
+        rowposition = row-1;
+        colposition = col-1;
+        bSize = b;
+        name = n;
+        avoidrow = rowofcat1-1;
+        avoidcol = colofcat1-1;
+        avoidrow2 = rowofcat2-1;
+        avoidcol2 = colofcat2-1;
+        statuscounter = 0;
+        status = "Starved";
+        exitr = erow-1;
+        exitc = ecol-1;
+    }
+
+    bool move(char c) {
+        if (status == " eaten by cat!"  or status == " drowned!") {
+            statuscounter++;
+            return 1;
+        }
+        switch (toupper(c)) {
+        case 'U':
+            if (rowposition-1>= 0) {
+                setStatus();
+                rowposition--;
+            }
+            else {
+                rowposition--;
+                setStatus();
+                return false;
+            }
+            break;
+        case 'D':
+            setStatus();
+            rowposition++;
+            break;
+        case 'L':
+            setStatus();
+            colposition--;
+            break;
+
+        case 'R':
+            setStatus();
+            colposition++;
+            break;
+
+        default:
+            return false;
+        }
+        setStatus();
+    }
+    string getName() {
+        return name;
+    }
+    int getrow() {
+        return rowposition+1;
+    }
+    int getcol() {
+        return colposition+1;
+
+    }
+    void setStatus() { //make counter here to measure how many instructions and if it is the last one and didnt escape just say it trapped
+        statuscounter++;
+        if ((rowposition == avoidrow && colposition == avoidcol) or (rowposition == avoidrow2 && colposition == avoidcol2)) {
+            status = " eaten by cat!";
+        }
+        else if ((rowposition < 0) or (rowposition > bSize) or (colposition < 0) or(colposition >bSize)) {
+            if (statuscounter < 4) {
+                status = " drowned!";
+            }
+            
+                
+
+
+        }
+        else {
+            status = "Starved";
+        }
+        if (rowposition == exitr && colposition == exitc) {
+            status = " escaped!";
+        }
+        
+        
+    }
+    string getStatus() { return status; }
+
+
+private:
+    int rowposition, colposition, bSize,avoidrow,avoidrow2,avoidcol,avoidcol2,statuscounter,exitr,exitc,mid;
+    string name;
+    string status; 
+
+};
+
+class Board {
+public:
+    Board(int c1r, int c1c, int c2r, int c2c, int bs) {
+
+        boardSize = bs;
+
+        setSize(c1r, c1c, c2r, c2c);
+
+
+    }
+    ~Board() {
+        for (int i = 0; i < boardSize; i++) {   
+            delete[] arr[i];
+        }
+        delete[] arr;
+    }
+
+
+    void setSize(int c1r, int c1c, int c2r, int c2c) {
+        int mid;
+        if (boardSize % 2 == 0) {
+            mid = boardSize/ 2;
+        }
+        else {
+            
+            mid = (boardSize+1) / 2;
+        }
+            
+        if (boardSize >= 9 and boardSize <= 12) {
+            for (int i = 0; i < boardSize; i++) { //0 to 8
+                arr[i] = new char[boardSize];
+
+            }
+            for (int i = 0; i < boardSize; i++) {
+
+                for (int j = 0; j < boardSize; j++) {
+
+                    if (((c1r-1) == i && (c1c-1)== j) or ((c2r-1) == i && (c2c-1) == j)) { //3 and 5 is 2 and 4 
+                        arr[i][j]='C';
+                        
+                    }
+                    else {
+                        arr[i][j]='-';
+                        
+                    }
+                    if (i == mid && j == boardSize - 1) { // so for example we want 3,5 is acc gonna be i=2 and j=4
+                        arr[i][j] = 'B';
+                        escaperow = i;
+                        escapecol = j;
+                    }
+                }
+
+                //cout << endl;
+            }
+        }
+
+        else {
+            cout << "error, size invalid";
+        }
+
+    }
+    int getSize() {
+        return boardSize;
+    }
+    void ViewBoard() {
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                cout << arr[i][j];
+            }
+            cout << endl;
+        }
+    }
+    void InsertAnimal(int r,int c) {
+        arr[r-1][c-1] = 'A';
+    }
+
+    int getExitRow() {
+        return escaperow;
+    }
+    int getExitcol() {
+        return escapecol;
+    }
+private:
+    int boardSize,escaperow,escapecol,mid;
+    char** arr = new char* [boardSize];
+};
+
+int main()
+{
+    int b, numofanimals;
+    string n1;
+    int r, c;
+    int rowcat=3;
+    int rowcat2=4;
+    int colcat=5;
+    int colcat2=1;
+    int rcexit;
+    cout << "enter board size: ";
+    cin >> b;
+    Board firstboard(rowcat, colcat, rowcat2, colcat2, b);
+    int rowexit=firstboard.getExitRow();
+    int colexit=firstboard.getExitcol();
+    int bSize1 = firstboard.getSize();
+    firstboard.ViewBoard();
+    cout << "number of animals: ";
+    cin >> numofanimals;
+    Animal* animals = new Animal[numofanimals];
+    string* instr = new string[numofanimals];
+    for (int i = 0; i < numofanimals; i++) {
+        cout << endl;
+        cout << "enter name of animal: " << endl;
+        cin >> n1;
+        cout << "enter row position: " << endl;
+        cin >> r;
+        cout << "enter column position: " << endl;
+        cin >> c;
+        firstboard.InsertAnimal(r, c);
+        animals[i] = Animal(n1, r, c,rowcat, colcat ,rowcat2, colcat2,rowexit,colexit, bSize1);
+    }
+    fstream file;
+
+    file.open("instructions.txt", ios::out | ios::in);
+    int counter = 0;
+    while (file >> instr[counter]) {
+        counter++;
+    } //work on if amount of animals too little.
+
+    char command;
+    string current;
+    for (int i = 0; i < numofanimals; i++) {
+        for (int j = 0; j < 4; j++) {
+            current = instr[i];
+            command = current[j];
+            animals[i].move(command);
+
+           // cout << animals[i].getName() << " is currently ";
+            //cout << animals[i].getStatus() << endl;
+            //cout << "row is " << animals[i].getrow() << endl;
+            //cout << "col is " << animals[i].getcol() << endl;
+
+        }
+        //cout << endl;
+        
+        
+    }
+    cout << endl;
+    //cout << "cat 1 row is " << rowcat<<endl;
+    //cout << "cat 1 col is " << colcat<<endl;
+    //cout << "cat 2 row is " << rowcat2 << endl;
+    //cout << "cat 2 col is " << colcat2 << endl;
+    for (int i = 0; i < numofanimals; i++) {
+        cout << animals[i].getName() <<" is " << animals[i].getStatus() << endl;
+        //cout << "row is "<<animals[i].getrow()<<endl;
+        //cout << "col is " << animals[i].getcol()<<endl;
+    }
+
+    cout << endl;
+    //firstboard.ViewBoard();
+
+    
+
+    file.close();
+
+    //Animal cat(4,4,bSize1);
+
+    delete[]instr;
+    delete[] animals;
+    return 0;
+}
